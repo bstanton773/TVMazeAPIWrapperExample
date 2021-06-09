@@ -1,4 +1,5 @@
 import requests
+import arrow
 
 class TVMazeAPI:
     
@@ -37,11 +38,20 @@ class TVMazeAPI:
         if res.status_code == 200:
             info = res.json()
             show = self._create_show_obj(info)
+            show.episodes = show.get_episodes()
+            show.cast = show.get_cast()
             return show
         return res
     
     def get_episode_list(self, show_id):
         url = self.base_url + f'/shows/{show_id}/episodes'
+        res = self._get(url)
+        if res.status_code == 200:
+            return res.json()
+        return res
+
+    def get_cast_list(self, show_id):
+        url = self.base_url + f'/shows/{show_id}/cast'
         res = self._get(url)
         if res.status_code == 200:
             return res.json()
@@ -55,7 +65,6 @@ class TVShow:
         self.image = img
         self.summary = summary
         self.network = network
-        self.episodes = self.get_episodes()
         
     def __repr__(self):
         return f'<TV Show | {self.title} >'
@@ -76,6 +85,20 @@ class TVShow:
             summary = episode['summary']
             all_eps.append(Episode(episode_id, title, season, number, airdate, summary))
         return all_eps
+
+    def get_cast(self):
+        api = TVMazeAPI()
+        cast_list = api.get_cast_list(self.id)
+        cast = []
+        for person in cast_list:
+            person_id = person['person']['id']
+            actor_name = person['person']['name']
+            actor_image = person['person']['image']['medium']
+            character_name = person['character']['name']
+            character_image = person['character']['image']['medium']
+            birthday = person['person']['birthday']
+            cast.append(Person(person_id, actor_name, actor_image, character_name, character_image, birthday))
+        return cast
              
         
 class Episode:
@@ -92,3 +115,19 @@ class Episode:
     
     def __str__(self):
         return f'{self.id} - {self.title}'
+
+
+class Person:
+    def __init__(self, person_id, actor_name, actor_image, character_name, character_image, birthday):
+        self.id = person_id
+        self.name = actor_name
+        self.image = actor_image
+        self.character = character_name
+        self.character_img = character_image
+        self.age = arrow.get(birthday).humanize().replace('ago', 'old')
+
+    def __repr__(self):
+        return f'<Person | {self.name}>'
+
+    def __str__(self):
+        return f'{self.id} - {self.name}'

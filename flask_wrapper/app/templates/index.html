@@ -22,11 +22,11 @@
         {% for show in show_list %}
             <div class="col-6 col-md-4">
                 <div class="card">
-                    <img src="{{ show.image }}" class="card-img-top" alt="show.title">
+                    <img src="{{ show.image }}" class="card-img-top" alt="{{ show.title }}">
                     <div class="card-body">
                       <h5 class="card-title">{{ show.title }}</h5>
                       <p class="card-text">{{ show.summary | safe }}</p>
-                      <a href="#" class="btn btn-primary">Episodes</a>
+                      <a href="{{ url_for('show_info', id=show.id) }}" class="btn btn-primary">See More</a>
                     </div>
                   </div>
             </div>
