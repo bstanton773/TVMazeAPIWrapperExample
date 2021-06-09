@@ -57,6 +57,22 @@ class TVMazeAPI:
             return res.json()
         return res
 
+    def get_actor_cast_credits(self, actor_id):
+        url = self.base_url + f'/people/{actor_id}/castcredits?embed=show'
+        res = self._get(url)
+        if res.status_code == 200:
+            credits = res.json()
+            return [self._create_show_obj(cred['_embedded']['show']) for cred in credits]
+        return res
+
+    def get_actor_data(self, actor_id):
+        url = self.base_url + f'/people/{actor_id}'
+        res = self._get(url)
+        if res.status_code == 200:
+            return res.json()
+        return res
+        
+
 
 class TVShow:
     def __init__(self, show_id, title, img, summary, network):

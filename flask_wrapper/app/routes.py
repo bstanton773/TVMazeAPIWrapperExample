@@ -19,3 +19,10 @@ def index():
 def show_info(id):
     show = client.get_show_info(id)
     return render_template('show.html', show=show)
+
+
+@app.route('/actor/<int:id>/shows')
+def actor_shows(id):
+    shows = client.get_actor_cast_credits(id)
+    actor = client.get_actor_data(id)
+    return render_template('actor_shows.html', shows=shows, actor=actor)
